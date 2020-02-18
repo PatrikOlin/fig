@@ -18,15 +18,14 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/atotto/clipboard"
+	_ "github.com/mattn/go-sqlite3"
 	"fmt"
-	"bufio"			 
-	"os"
-	"os/exec"
-	"math/rand"
-	"time"
+	"os/exec"				   
 	"strings"
 	"runtime"
+	"database/sql"			   
 	"log"			 
+		
 )
 
 // nameCmd represents the name command
@@ -73,30 +72,48 @@ func getFullName(copyFlag bool) string {
 	return fullName.String()
 }
 
-func getRandomLine(file *os.File) string {
-					 
-	scanner := bufio.NewScanner(file)
-					 
-	randSource := rand.NewSource(time.Now().UnixNano())
-	randGenerator := rand.New(randSource)
+func getRandomLine(tablename string) string {
+	var result string
+	var id int
+	db, _ := sql.Open("sqlite3", "./db/idparts.db")
+	row := db.QueryRow("SELECT * FROM " + tablename + " ORDER BY RANDOM() LIMIT 1")
+	err := row.Scan(&id, &result)
 
-	lineNum := 1
-	var pick string
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		roll := randGenerator.Intn(lineNum)
-		if roll == 0 {
-			pick = line
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("No rows found")
+		} else {
+			panic(err)
 		}
-
-		lineNum += 1
 	}
 
-	file.Close()	 
-	return pick		 
-	
+	db.Close()
+	return result
 }
+// func getRandomLine(file *os.File) string {
+					 
+// 	scanner := bufio.NewScanner(file)
+					 
+// 	randSource := rand.NewSource(time.Now().UnixNano())
+// 	randGenerator := rand.New(randSource)
+
+// 	lineNum := 1
+// 	var pick string
+// 	for scanner.Scan() {
+// 		line := scanner.Text()
+
+// 		roll := randGenerator.Intn(lineNum)
+// 		if roll == 0 {
+// 			pick = line
+// 		}
+
+// 		lineNum += 1
+// 	}
+
+// 	file.Close()
+// 	return pick
+	
+// }
 
 
 func toClipboard(input []byte) {
@@ -132,19 +149,15 @@ func toClipboard(input []byte) {
 }
 
 func getFirstName() string {
-	file, err := os.Open("./db/fname")
-	check(err)		 
 	var firstName string
-	firstName = getRandomLine(file)
+	firstName = getRandomLine("firstnames")
 
 	return firstName
 }
 
 func getSurname() string {
-	file, err := os.Open("./db/lname")
-	check(err)		 
 	var surname string
-	surname = getRandomLine(file)
+	surname = getRandomLine("surnames")
 
 	return surname
 }

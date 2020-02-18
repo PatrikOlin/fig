@@ -16,15 +16,15 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/atotto/clipboard"
-	"strings"
 	"fmt"
+
+	"github.com/atotto/clipboard"	   
+	"github.com/spf13/cobra"
 )
 
-// personCmd represents the person command
-var personCmd = &cobra.Command{
-	Use:   "person",
+// passwordCmd represents the password command
+var passwordCmd = &cobra.Command{
+	Use:   "password",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -34,40 +34,29 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fstatus, _ := cmd.Flags().GetBool("copy")
-		fmt.Println(getPerson(fstatus))
+		fmt.Println(getPassword(fstatus))
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(personCmd)
+	rootCmd.AddCommand(passwordCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// personCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// passwordCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// personCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	personCmd.Flags().BoolP("copy", "c", false, "Copy person to clipboard")
+	// passwordCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	passwordCmd.Flags().BoolP("copy", "c", false, "Copy phone number to clipboard")
 }
 
-func getPerson(copyFlag bool) string {
-	var person strings.Builder
-	person.WriteString(getFullName(false))
-	person.WriteString("\n")
-	person.WriteString(getPIN(false))
-	person.WriteString("\n")
-	person.WriteString(getFullAddress(false))
-	person.WriteString("\n")
-	person.WriteString(getPhoneNumber(false))
-	person.WriteString("\n")
-	person.WriteString(getPassword(false))
-
+func getPassword(copyFlag bool) string {
+	password := getRandomLine("passwords")
 	if copyFlag == true {
-		clipboard.WriteAll(person.String())
+		clipboard.WriteAll(password)
 	}
-
-	return person.String()
+	return password
 }

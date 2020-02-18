@@ -15,16 +15,18 @@ limitations under the License.
 */
 package cmd
 
-import (
+import (					   
 	"github.com/spf13/cobra"
 	"github.com/atotto/clipboard"
+	_ "github.com/mattn/go-sqlite3"
+	"database/sql"
 	"math/rand"
-	"strconv"
+	"strconv"				   
 	"strings"
 	"time"
 	"fmt"
-	"os"
-)
+
+)							   
 
 // addressCmd represents the address command
 var addressCmd = &cobra.Command{
@@ -62,7 +64,7 @@ func getFullAddress(copyFlag bool) string {
 	var fullAddress strings.Builder
 	fullAddress.WriteString(getStreet())
 	fullAddress.WriteString("\n")
-	fullAddress.WriteString(getPostalCode())
+	fullAddress.WriteString(getPostalAddress())
 
 	if copyFlag == true {
 		clipboard.WriteAll(fullAddress.String())
@@ -71,18 +73,19 @@ func getFullAddress(copyFlag bool) string {
 }
 
 func getStreetPrefix() string {
-	file, err := os.Open("./db/stpre")
-	check(err)
-	stPrefix := getRandomLine(file)
+	stPrefix := getRandomLine("streetprefixes")
+	return stPrefix
+}
 
+func getStreetSuffix() string {
+	stPrefix := getRandomLine("streetsuffixes")
 	return stPrefix
 }
 
 func getStreet() string {
-	suffixes := []string{"vägen", "gatan", "gränden", "gränd", "stigen", "branten"}
-	var street strings.Builder
+	var street strings.Builder 
 	street.WriteString(getStreetPrefix())
-	street.WriteString(suffixes[rand.Intn(len(suffixes))])
+	street.WriteString(getStreetSuffix())
 	street.WriteString(" ")
 	street.WriteString(strconv.Itoa(rand.Intn(198) + 1))
 	if rand.Intn(8) < 2 {
@@ -100,12 +103,27 @@ func randomLetter() string {
 	}
 
 	return string(letter)
-}
+}							   
 
-func getPostalCode() string {
-	file, err := os.Open("pnumort")
-	check(err)
-	postal := getRandomLine(file)
+func getPostalAddress() string {
 
-	return postal
+	var id int
+	var postalTown string
+	var postalCode string
+
+	db, _ := sql.Open("sqlite3", "./db/idparts.db")
+	row := db.QueryRow("SELECT * FROM postaladdresses ORDER BY RANDOM() LIMIT 1")
+	err := row.Scan(&id, &postalCode, &postalTown)
+							   
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("No rows found")
+		} else {
+			panic(err)
+		}
+	}
+
+	db.Close()
+							   
+	return postalCode + ", " + postalTown
 }
