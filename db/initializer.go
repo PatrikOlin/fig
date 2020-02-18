@@ -26,7 +26,7 @@ func Initdb() {
 }		
 		
 func initFirstnameTable() {
-	fname := "fname"
+	fname := "./db/fname"
 	initStmt := "CREATE TABLE IF NOT EXISTS firstnames (id INTEGER PRIMARY KEY, firstname TEXT)"
 	inputStmt := "INSERT INTO firstnames (firstname) VALUES (?)"
 
@@ -34,7 +34,7 @@ func initFirstnameTable() {
 }
 
 func initSurnameTable() {
-	sname := "lname"
+	sname := "./db/lname"
 	initStmt := "CREATE TABLE IF NOT EXISTS surnames (id INTEGER PRIMARY KEY, surname TEXT)"
 	inputStmt := "INSERT INTO surnames (surname) VALUES (?)"
 
@@ -42,7 +42,7 @@ func initSurnameTable() {
 }
 
 func initStreetPrefixTable() {
-	stpre := "stpre"
+	stpre := "./db/stpre"
 	initStmt := "CREATE TABLE IF NOT EXISTS streetprefixes (id INTEGER PRIMARY KEY, streetprefix TEXT)"
 	inputStmt := "INSERT INTO streetprefixes (streetprefix) VALUES (?)"
 
@@ -50,7 +50,7 @@ func initStreetPrefixTable() {
 }
 
 func initStreetSuffixTable() {
-	stsuf := "stsuf"
+	stsuf := "./db/stsuf"
 	initStmt := "CREATE TABLE IF NOT EXISTS streetsuffixes (id INTEGER PRIMARY KEY, streetsuffix TEXT)"
 	inputStmt := "INSERT INTO streetsuffixes (streetsuffix) VALUES (?)"
 

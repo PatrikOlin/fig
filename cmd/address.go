@@ -71,7 +71,7 @@ func getFullAddress(copyFlag bool) string {
 }
 
 func getStreetPrefix() string {
-	file, err := os.Open("stpre")
+	file, err := os.Open("./db/stpre")
 	check(err)
 	stPrefix := getRandomLine(file)
 

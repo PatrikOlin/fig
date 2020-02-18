@@ -132,7 +132,7 @@ func toClipboard(input []byte) {
 }
 
 func getFirstName() string {
-	file, err := os.Open("fname")
+	file, err := os.Open("./db/fname")
 	check(err)		 
 	var firstName string
 	firstName = getRandomLine(file)
@@ -141,7 +141,7 @@ func getFirstName() string {
 }
 
 func getSurname() string {
-	file, err := os.Open("lname")
+	file, err := os.Open("./db/lname")
 	check(err)		 
 	var surname string
 	surname = getRandomLine(file)
