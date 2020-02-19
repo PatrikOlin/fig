@@ -27,6 +27,8 @@ func Initdb() {
 	initStreetSuffixTable()
 	initPostalAddressTable()
 	initPasswordTable()
+	initEmailDomainsTable()
+	initCompanynameTable()
 }
 
 func createDb() {
@@ -88,6 +90,40 @@ func initPasswordTable() {
 
 	initTable(dropStmt, initStmt)
 	populateTable(src, inputStmt)
+}
+
+func initEmailDomainsTable() {
+	src := "./db/emailaddresses"
+	dropStmt := "DROP TABLE IF EXISTS emaildomains"
+	initStmt := "CREATE TABLE IF NOT EXISTS emaildomains (id INTEGER PRIMARY KEY, emaildomain TEXT)"
+	inputStmt := "INSERT INTO emaildomains (emaildomain) VALUES (?)"
+
+	initTable(dropStmt, initStmt)
+	populateTable(src, inputStmt)
+}
+
+func initCompanynameTable() {
+	src := "./db/foretag"
+	dropStmt := "DROP TABLE IF EXISTS companynameparts"
+	initStmt := "CREATE TABLE IF NOT EXISTS companynameparts (id INTEGER PRIMARY KEY, companynamepart TEXT)"
+	inputStmt := "INSERT INTO companynameparts (companynamepart) VALUES (?)"
+
+	initTable(dropStmt, initStmt)
+	file, err := os.Open(src)
+	check(err)
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanWords)
+	db, _ := sql.Open("sqlite3", "./db/idparts.db")
+	statement, _ := db.Prepare(inputStmt)
+	for scanner.Scan() {
+		statement.Exec(scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	statement.Close()
+	db.Close()
 }
 
 func initPostalAddressTable() {

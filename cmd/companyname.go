@@ -17,14 +17,17 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+	"math/rand"
+	"time"
+
 	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
-// personCmd represents the person command
-var personCmd = &cobra.Command{
-	Use:   "person",
+// companynameCmd represents the companyname command
+var companynameCmd = &cobra.Command{
+	Use:   "companyname",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -34,44 +37,39 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fstatus, _ := cmd.Flags().GetBool("copy")
-		fmt.Println(getPerson(fstatus))
+		fmt.Println(getCompanyname(fstatus))
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(personCmd)
+	rootCmd.AddCommand(companynameCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// personCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// companynameCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// personCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	personCmd.Flags().BoolP("copy", "c", false, "Copy person to clipboard")
+	// companynameCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	companynameCmd.Flags().BoolP("copy", "c", false, "Copy company name to clipboard")
 }
 
-func getPerson(copyFlag bool) string {
-	var person strings.Builder
-	fullname := getFullName(false)
-	email := getEmailForName(fullname)
-	person.WriteString(fullname)
-	person.WriteString("\n")
-	person.WriteString(getPIN(false))
-	person.WriteString("\n")
-	person.WriteString(getFullAddress(false))
-	person.WriteString("\n")
-	person.WriteString(getPhoneNumber(false))
-	person.WriteString("\n")
-	person.WriteString(email)
-	person.WriteString("\n")
-	person.WriteString(getPassword(false))
-
-	if copyFlag == true {
-		clipboard.WriteAll(person.String())
+func getCompanyname(copyFlag bool) string {
+	rand.Seed(time.Now().UnixNano())
+	numOfWords := rangeIn(2, 5)
+	var companyname strings.Builder
+	
+	for i := 0; i < numOfWords; i++ {
+		companyname.WriteString(getRandomLine("companynameparts"))
+		companyname.WriteString(" ")
 	}
 
-	return person.String()
+	finishedCompanyname := strings.TrimSpace(companyname.String())
+	if copyFlag == true {
+		clipboard.WriteAll(finishedCompanyname)
+	}
+
+	return finishedCompanyname
 }

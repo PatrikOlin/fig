@@ -17,14 +17,15 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
-// personCmd represents the person command
-var personCmd = &cobra.Command{
-	Use:   "person",
+// emailCmd represents the email command
+var emailCmd = &cobra.Command{
+	Use:   "email",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -34,44 +35,46 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fstatus, _ := cmd.Flags().GetBool("copy")
-		fmt.Println(getPerson(fstatus))
+		fmt.Println(getEmail(fstatus))
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(personCmd)
+	rootCmd.AddCommand(emailCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// personCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// emailCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// personCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	personCmd.Flags().BoolP("copy", "c", false, "Copy person to clipboard")
+	// emailCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	emailCmd.Flags().BoolP("copy", "c", false, "Copy person to clipboard")
 }
 
-func getPerson(copyFlag bool) string {
-	var person strings.Builder
-	fullname := getFullName(false)
-	email := getEmailForName(fullname)
-	person.WriteString(fullname)
-	person.WriteString("\n")
-	person.WriteString(getPIN(false))
-	person.WriteString("\n")
-	person.WriteString(getFullAddress(false))
-	person.WriteString("\n")
-	person.WriteString(getPhoneNumber(false))
-	person.WriteString("\n")
-	person.WriteString(email)
-	person.WriteString("\n")
-	person.WriteString(getPassword(false))
+func getEmail(copyFlag bool) string {
+	var emailAddress strings.Builder
+	emailAddress.WriteString(getFirstName())
+	emailAddress.WriteString(".")
+	emailAddress.WriteString(getSurname())
+	emailAddress.WriteString(getRandomLine("emaildomains"))
 
 	if copyFlag == true {
-		clipboard.WriteAll(person.String())
+		clipboard.WriteAll(strings.ToLower(emailAddress.String()))
 	}
 
-	return person.String()
+	return strings.ToLower(emailAddress.String())
+}
+
+func getEmailForName(fullname string) string {
+	names := strings.Fields(fullname)
+	var emailAddress strings.Builder
+	emailAddress.WriteString(names[0])
+	emailAddress.WriteString(".")
+	emailAddress.WriteString(names[1])
+	emailAddress.WriteString(getRandomLine("emaildomains"))
+
+	return strings.ToLower(emailAddress.String())
 }
