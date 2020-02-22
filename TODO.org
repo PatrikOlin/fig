@@ -1,0 +1,7 @@
+#+TITLE: TODO
+
+*** TODO Generera artikel, blapp-style
+*** TODO Lägg till BLAPP-STYLE, en flagga som returnerar ett json som blapp skulle gilla
+*** TODO Generera styrelse till företag
+*** TODO Dokumentera varje kommando
+*** TODO Utöka företag, blapp-style
