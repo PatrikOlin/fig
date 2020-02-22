@@ -103,7 +103,7 @@ func initEmailDomainsTable() {
 }
 
 func initCompanynameTable() {
-	src := "./db/foretag"
+	src := "./db/companynames"
 	dropStmt := "DROP TABLE IF EXISTS companynameparts"
 	initStmt := "CREATE TABLE IF NOT EXISTS companynameparts (id INTEGER PRIMARY KEY, companynamepart TEXT)"
 	inputStmt := "INSERT INTO companynameparts (companynamepart) VALUES (?)"
