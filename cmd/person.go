@@ -19,8 +19,17 @@ import (
 	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
-	"strings"
+	"encoding/json"
 )
+
+type Person struct {
+	Name     string
+	Pin      string
+	Email    string
+	Address  string
+	Phone    string
+	Password string
+}
 
 // personCmd represents the person command
 var personCmd = &cobra.Command{
@@ -34,7 +43,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fstatus, _ := cmd.Flags().GetBool("copy")
-		fmt.Println(getPerson(fstatus))
+		printPerson(fstatus)
 	},
 }
 
@@ -53,25 +62,33 @@ func init() {
 	personCmd.Flags().BoolP("copy", "c", false, "Copy person to clipboard")
 }
 
-func getPerson(copyFlag bool) string {
-	var person strings.Builder
+func printPerson(copyFlag bool) {
+	person := getPerson(copyFlag)
+	fmt.Printf("Namn: %s \n", person.Name)
+	fmt.Printf("Personnummer: %s \n", person.Pin)
+	fmt.Printf("Adress: %s \n", person.Address)
+	fmt.Printf("Telefonnummer: %s \n", person.Phone)
+	fmt.Printf("Epost: %s \n", person.Email)
+	fmt.Printf("Lösenord: %s \n", person.Password)
+}
+
+func getPerson(copyFlag bool) Person {
 	fullname := getFullName(false)
 	email := getEmailForName(fullname)
-	person.WriteString(fullname)
-	person.WriteString("\n")
-	person.WriteString(getPIN(false))
-	person.WriteString("\n")
-	person.WriteString(getFullAddress(false))
-	person.WriteString("\n")
-	person.WriteString(getPhoneNumber(false))
-	person.WriteString("\n")
-	person.WriteString(email)
-	person.WriteString("\n")
-	person.WriteString(getPassword(false))
-
-	if copyFlag == true {
-		clipboard.WriteAll(person.String())
+	person := Person{
+		Name: fullname,
+		Pin: getPIN(false),
+		Address: getFullAddress(false),
+		Phone: getPhoneNumber(false),
+		Email: email,
+		Password: getPassword(false),
 	}
 
-	return person.String()
+	if copyFlag == true {
+		json, err := json.Marshal(person)
+		check(err)
+		clipboard.WriteAll(string(json))
+	}
+
+	return person
 }

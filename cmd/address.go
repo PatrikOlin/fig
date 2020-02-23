@@ -63,7 +63,7 @@ func getFullAddress(copyFlag bool) string {
 	rand.Seed(time.Now().UnixNano())
 	var fullAddress strings.Builder
 	fullAddress.WriteString(getStreet())
-	fullAddress.WriteString("\n")
+	fullAddress.WriteString(",\n")
 	fullAddress.WriteString(getPostalAddress())
 
 	if copyFlag == true {

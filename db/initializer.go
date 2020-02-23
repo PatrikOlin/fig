@@ -29,6 +29,7 @@ func Initdb() {
 	initPasswordTable()
 	initEmailDomainsTable()
 	initCompanynameTable()
+	initArticlesTable()
 }
 
 func createDb() {
@@ -97,6 +98,16 @@ func initEmailDomainsTable() {
 	dropStmt := "DROP TABLE IF EXISTS emaildomains"
 	initStmt := "CREATE TABLE IF NOT EXISTS emaildomains (id INTEGER PRIMARY KEY, emaildomain TEXT)"
 	inputStmt := "INSERT INTO emaildomains (emaildomain) VALUES (?)"
+
+	initTable(dropStmt, initStmt)
+	populateTable(src, inputStmt)
+}
+
+func initArticlesTable() {
+	src := "./db/articles"
+	dropStmt := "DROP TABLE IF EXISTS articles"
+	initStmt := "CREATE TABLE IF NOT EXISTS articles (id INTEGER PRIMARY KEY, article TEXT)"
+	inputStmt := "INSERT INTO articles (article) VALUES (?)"
 
 	initTable(dropStmt, initStmt)
 	populateTable(src, inputStmt)
