@@ -80,7 +80,7 @@ func getAndPrintCompany(copyFlag bool, amount int) {
 			clipboard.WriteAll(string(json))
 		}
 
-		printCompanies(companies)
+		printCompanies(companies)			 
 	}
 }
 
@@ -95,7 +95,7 @@ func printCompany(company Company) {
 	fmt.Printf("Org.Nr: %s \n", company.OrgNum)
 	fmt.Printf("VAT-nr: %s \n", company.VatCode)
 	fmt.Printf("Verklig Huvudman: %s \n", company.BeneficialOwner)
-	fmt.Println("-------------------------")
+	fmt.Println("-----------------------------------------")
 }
 
 func getCompany(copyFlag bool) Company {
