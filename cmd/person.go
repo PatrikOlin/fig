@@ -42,8 +42,9 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fstatus, _ := cmd.Flags().GetBool("copy")
-		printPerson(fstatus)
+		copyFlag, _ := cmd.Flags().GetBool("copy")
+		multiFlag, _ := cmd.Flags().GetInt("multi")
+		getAndPrintPerson(copyFlag, multiFlag)
 	},
 }
 
@@ -60,16 +61,44 @@ func init() {
 	// is called directly, e.g.:
 	// personCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	personCmd.Flags().BoolP("copy", "c", false, "Copy person to clipboard")
+	personCmd.Flags().IntP("multi", "m", 1, "Generate as many friends as you damn well please")
 }
 
-func printPerson(copyFlag bool) {
-	person := getPerson(copyFlag)
+
+func getAndPrintPerson(copyFlag bool, amount int) {
+	if amount == 1 {
+		person := getPerson(copyFlag)
+		printPerson(person)
+	} else {
+		var people []Person
+		for i := 1; i <= amount; i++ {
+			people = append(people, getPerson(false))
+		}
+
+	if copyFlag == true {
+		json, err := json.Marshal(people)
+		check(err)
+		clipboard.WriteAll(string(json))
+	}
+
+		printPeople(people)
+	}
+}
+
+func printPeople(people []Person) {
+	for _, person := range people {
+		printPerson(person)
+	}
+}
+
+func printPerson(person Person) {
 	fmt.Printf("Namn: %s \n", person.Name)
 	fmt.Printf("Personnummer: %s \n", person.Pin)
 	fmt.Printf("Adress: %s \n", person.Address)
 	fmt.Printf("Telefonnummer: %s \n", person.Phone)
 	fmt.Printf("Epost: %s \n", person.Email)
 	fmt.Printf("Lösenord: %s \n", person.Password)
+	fmt.Println("-----------------------------------------")
 }
 
 func getPerson(copyFlag bool) Person {

@@ -16,10 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/atotto/clipboard"
-	"time"			   
-	"encoding/json"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -42,8 +42,9 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fstatus, _ := cmd.Flags().GetBool("copy")
-		printCompany(fstatus)
+		copyFlag, _ := cmd.Flags().GetBool("copy")
+		multiFlag, _ := cmd.Flags().GetInt("multi")
+		getAndPrintCompany(copyFlag, multiFlag)
 	},
 }
 
@@ -60,37 +61,51 @@ func init() {
 	// is called directly, e.g.:
 	// companyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	companyCmd.Flags().BoolP("copy", "c", false, "Copy company to clipboard")
+	companyCmd.Flags().IntP("multi", "m", 1, "Generate multiple companies")
 }
 
-func printCompany(copyFlag bool) {
-	company := getCompany(copyFlag)
+func getAndPrintCompany(copyFlag bool, amount int) {
+	if amount == 1 {
+		company := getCompany(copyFlag)
+		printCompany(company)
+	} else {
+		var companies []Company
+		for i := 1; i <= amount; i++ {
+			companies = append(companies, getCompany(false))
+		}
+
+		if copyFlag == true {
+			json, err := json.Marshal(companies)
+			check(err)
+			clipboard.WriteAll(string(json))
+		}
+
+		printCompanies(companies)
+	}
+}
+
+func printCompanies(companies []Company) {
+	for _, company := range companies {
+		printCompany(company)
+	}
+}
+
+func printCompany(company Company) {
 	fmt.Printf("Företagsnamn: %s \n", company.CompanyName)
 	fmt.Printf("Org.Nr: %s \n", company.OrgNum)
 	fmt.Printf("VAT-nr: %s \n", company.VatCode)
 	fmt.Printf("Verklig Huvudman: %s \n", company.BeneficialOwner)
-} 					   
+	fmt.Println("-------------------------")
+}
 
 func getCompany(copyFlag bool) Company {
-	// var company strings.Builder
 	seed := time.Now().UnixNano()
-	// orgNum := getOrgNum()
-	// var formattedOrgNum string
-	// for i := 6; i < len(orgNum); i += 7 {
-	// 	formattedOrgNum = orgNum[:i] + "-" + orgNum[i:]
-	// }
-	// company.WriteString(getCompanyname(false))
-	// company.WriteString("\n")
-	// company.WriteString(formattedOrgNum)
-	// company.WriteString("\n")
-	// company.WriteString(getVatCodeForOrgNum(orgNum))
-	// company.WriteString("\n")
-	// company.WriteString(getFullName(false))
 	company := Company{
-		CompanyName: getCompanyname(false),
-		OrgNum: getFormattedOrgNum(false, seed), 
-		VatCode: getVatCodeForOrgNum(getOrgNum(seed)),
+		CompanyName:     getCompanyname(false),
+		OrgNum:          getFormattedOrgNum(false, seed),
+		VatCode:         getVatCodeForOrgNum(getOrgNum(seed)),
 		BeneficialOwner: getFullName(false),
-	}				   
+	}
 
 	if copyFlag == true {
 		json, err := json.Marshal(company)
@@ -99,4 +114,4 @@ func getCompany(copyFlag bool) Company {
 	}
 
 	return company
-}					   
+}

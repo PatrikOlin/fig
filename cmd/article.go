@@ -1,4 +1,4 @@
-/*
+/*						   
 Copyright © 2020 NAME HERE <EMAIL ADDRESS>
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,8 +45,9 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fstatus, _ := cmd.Flags().GetBool("copy")
-		printArticle(fstatus)
+		copyFlag, _ := cmd.Flags().GetBool("copy")
+		multiFlag, _ := cmd.Flags().GetInt("multi")
+		getAndPrintArticle(copyFlag, multiFlag)
 	},
 }
 
@@ -63,18 +64,46 @@ func init() {
 	// is called directly, e.g.:
 	// articleCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	articleCmd.Flags().BoolP("copy", "c", false, "Copy article to clipboard")
+	articleCmd.Flags().IntP("multi", "m", 1, "Generate multiple articles")
 }
 
-func printArticle(copyFlag bool) {
-	article := getArticle(copyFlag)
+func getAndPrintArticle(copyFlag bool, amount int) {
+	if amount == 1 {
+		article := getArticle(copyFlag)
+		printArticle(article)
+	} else {
+		var articles []Article
+		for i := 1; i <= amount; i++ {
+			articles = append(articles, getArticle(false))
+		}
+
+		if copyFlag == true {
+			json, err := json.Marshal(articles)
+			check(err)
+			clipboard.WriteAll(string(json))
+		}
+
+		printArticles(articles)
+	}
+}
+
+func printArticles(articles []Article) {
+	for _, article := range articles {
+		printArticle(article)
+	}
+}
+
+func printArticle(article Article) {
 	fmt.Printf("Artikelid: %s \n", article.Id)
 	fmt.Printf("Artikel: %s \n", article.Description)
 	fmt.Printf("Momskod: %d \n", article.VatCode)
 	fmt.Printf("Pris: %s:- %s \n", article.Price, article.Unit)
-}				 
+	fmt.Println("-----------------------------------------")
+}
 
 func getArticle(copyFlag bool) Article {
 	rand.Seed(time.Now().UnixNano())
+
 	article := Article{
 		Id:          strconv.Itoa(rangeIn(1, 9999)),
 		Description: getArticleName(),
