@@ -5,3 +5,6 @@
 *** TODO Generera styrelse till företag
 *** TODO Dokumentera varje kommando
 *** TODO Utöka företag, blapp-style
+*** TODO Bygg funktion för att mata in ett antal för att generera ex. flera personer
+*** TODO Utöka företag med årsbokslut, nyckeltal
+*** TODO Bygga om till API
