@@ -21,18 +21,13 @@ import (
 	"math/rand"
 	"strconv"
 	"time"
+	"fig/api"								
+	"fig/models"						
 
 	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
 )
 
-type Article struct {
-	Id          string
-	Description string
-	VatCode     int
-	Price       string
-	Unit        string
-}
 
 // articleCmd represents the article command
 var articleCmd = &cobra.Command{
@@ -68,14 +63,19 @@ func init() {
 }
 
 func getAndPrintArticle(copyFlag bool, amount int) {
-	if amount == 1 {
-		article := getArticle(copyFlag)
-		printArticle(article)
-	} else {
-		var articles []Article
-		for i := 1; i <= amount; i++ {
-			articles = append(articles, getArticle(false))
-		}
+	// if amount == 1 {
+	// 	article := getArticle(copyFlag)
+	// 	printArticle(article)
+	// } else {
+	// 	var articles []Article
+	// 	for i := 1; i <= amount; i++ {
+	// 		articles = append(articles, getArticle(false))
+	// 	}
+
+	client := api.NewBasicClient("localhost:8080/api/v1")
+
+	articles, _ := client.GetArticles(amount)
+
 
 		if copyFlag == true {
 			json, err := json.Marshal(articles)
@@ -83,29 +83,29 @@ func getAndPrintArticle(copyFlag bool, amount int) {
 			clipboard.WriteAll(string(json))
 		}
 
-		printArticles(articles)
+	fmt.Println(articles)				
+		// printArticles(articles)
 	}
-}
-
-func printArticles(articles []Article) {
+										
+func printArticles(articles []models.Article) {
 	for _, article := range articles {
 		printArticle(article)
 	}
 }
 
-func printArticle(article Article) {
-	fmt.Printf("Artikelid: %s \n", article.Id)
+func printArticle(article models.Article) {
+	fmt.Printf("Artikelid: %s \n", article.ID)
 	fmt.Printf("Artikel: %s \n", article.Description)
 	fmt.Printf("Momskod: %d \n", article.VatCode)
 	fmt.Printf("Pris: %s:- %s \n", article.Price, article.Unit)
 	fmt.Println("-----------------------------------------")
 }
 
-func getArticle(copyFlag bool) Article {
+func getArticle(copyFlag bool) models.Article {
 	rand.Seed(time.Now().UnixNano())
 
-	article := Article{
-		Id:          strconv.Itoa(rangeIn(1, 9999)),
+	article := models.Article{
+		ID:          strconv.Itoa(rangeIn(1, 9999)),
 		Description: getArticleName(),
 		VatCode:     rangeIn(0, 3),
 		Price:       strconv.Itoa(rangeIn(1, 99999)),
@@ -122,5 +122,5 @@ func getArticle(copyFlag bool) Article {
 
 func getArticleName() string {
 	article := getRandomLine("articles")
-	return article
+	return article						
 }
