@@ -20,16 +20,10 @@ import (
 	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
 	"encoding/json"
+	"fig/api"
+	"fig/models"
 )
 
-type Person struct {
-	Name     string
-	Pin      string
-	Email    string
-	Address  string
-	Phone    string
-	Password string
-}
 
 // personCmd represents the person command
 var personCmd = &cobra.Command{
@@ -66,14 +60,10 @@ func init() {
 
 
 func getAndPrintPerson(copyFlag bool, amount int) {
-	if amount == 1 {
-		person := getPerson(copyFlag)
-		printPerson(person)
-	} else {
-		var people []Person
-		for i := 1; i <= amount; i++ {
-			people = append(people, getPerson(false))
-		}
+	client := api.NewBasicClient("http://localhost:8080/api/v1")
+
+	people, err := client.GetPeople(amount)
+	check(err)
 
 	if copyFlag == true {
 		json, err := json.Marshal(people)
@@ -82,16 +72,15 @@ func getAndPrintPerson(copyFlag bool, amount int) {
 	}
 
 		printPeople(people)
-	}
 }
 
-func printPeople(people []Person) {
+func printPeople(people []models.Person) {
 	for _, person := range people {
 		printPerson(person)
 	}
 }
 
-func printPerson(person Person) {
+func printPerson(person models.Person) {
 	fmt.Printf("Namn: %s \n", person.Name)
 	fmt.Printf("Personnummer: %s \n", person.Pin)
 	fmt.Printf("Adress: %s \n", person.Address)
@@ -101,10 +90,10 @@ func printPerson(person Person) {
 	fmt.Println("-----------------------------------------")
 }
 
-func getPerson(copyFlag bool) Person {
+func getPerson(copyFlag bool) models.Person {
 	fullname := getFullName(false)
 	email := getEmailForName(fullname)
-	person := Person{
+	person := models.Person{
 		Name: fullname,
 		Pin: getPIN(false),
 		Address: getFullAddress(false),
