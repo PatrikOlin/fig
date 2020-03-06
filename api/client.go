@@ -37,7 +37,6 @@ func NewBasicClient(urlString string) *Client {
 func (c *Client) GetArticles(numOfArticles int) ([]models.Article, error) {
 
 	req, err := c.newRequest("GET", "/articles?amount=" + strconv.Itoa(numOfArticles), nil)
-	fmt.Println(numOfArticles)
 	if err != nil {
 		return nil, err
 	}
@@ -47,6 +46,20 @@ func (c *Client) GetArticles(numOfArticles int) ([]models.Article, error) {
 
 
 	return articles, err
+}
+
+func (c *Client) GetCompanies(numOfCompanies int) ([]models.Company, error) {
+
+	req, err := c.newRequest("GET", "/companies?amount=" + strconv.Itoa(numOfCompanies), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var companies []models.Company
+	_, err = c.do(req, &companies)
+
+
+	return companies, err
 }
 
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {

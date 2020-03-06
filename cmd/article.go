@@ -63,19 +63,9 @@ func init() {
 }
 
 func getAndPrintArticle(copyFlag bool, amount int) {
-	// if amount == 1 {
-	// 	article := getArticle(copyFlag)
-	// 	printArticle(article)
-	// } else {
-	// 	var articles []Article
-	// 	for i := 1; i <= amount; i++ {
-	// 		articles = append(articles, getArticle(false))
-	// 	}
-
 	client := api.NewBasicClient("http://localhost:8080/api/v1")
 
 	articles, _ := client.GetArticles(amount)
-
 
 		if copyFlag == true {
 			json, err := json.Marshal(articles)

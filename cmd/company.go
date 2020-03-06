@@ -20,16 +20,12 @@ import (
 	"fmt"
 	"github.com/atotto/clipboard"
 	"time"
+	"fig/api"								
+	"fig/models"						
 
 	"github.com/spf13/cobra"
 )
 
-type Company struct {
-	CompanyName     string
-	OrgNum          string
-	VatCode         string
-	BeneficialOwner string
-}
 
 // companyCmd represents the company command
 var companyCmd = &cobra.Command{
@@ -65,14 +61,10 @@ func init() {
 }
 
 func getAndPrintCompany(copyFlag bool, amount int) {
-	if amount == 1 {
-		company := getCompany(copyFlag)
-		printCompany(company)
-	} else {
-		var companies []Company
-		for i := 1; i <= amount; i++ {
-			companies = append(companies, getCompany(false))
-		}
+	client := api.NewBasicClient("http://localhost:8080/api/v1")
+
+	companies, err := client.GetCompanies(amount)
+	check(err)
 
 		if copyFlag == true {
 			json, err := json.Marshal(companies)
@@ -81,16 +73,15 @@ func getAndPrintCompany(copyFlag bool, amount int) {
 		}
 
 		printCompanies(companies)			 
-	}
 }
 
-func printCompanies(companies []Company) {
+func printCompanies(companies []models.Company) {
 	for _, company := range companies {
 		printCompany(company)
 	}
 }
 
-func printCompany(company Company) {
+func printCompany(company models.Company) {
 	fmt.Printf("Företagsnamn: %s \n", company.CompanyName)
 	fmt.Printf("Org.Nr: %s \n", company.OrgNum)
 	fmt.Printf("VAT-nr: %s \n", company.VatCode)
@@ -98,9 +89,9 @@ func printCompany(company Company) {
 	fmt.Println("-----------------------------------------")
 }
 
-func getCompany(copyFlag bool) Company {
+func getCompany(copyFlag bool) models.Company {
 	seed := time.Now().UnixNano()
-	company := Company{
+	company := models.Company{
 		CompanyName:     getCompanyname(false),
 		OrgNum:          getFormattedOrgNum(false, seed),
 		VatCode:         getVatCodeForOrgNum(getOrgNum(seed)),
