@@ -72,7 +72,7 @@ func getAndPrintArticle(copyFlag bool, amount int) {
 	// 		articles = append(articles, getArticle(false))
 	// 	}
 
-	client := api.NewBasicClient("localhost:8080/api/v1")
+	client := api.NewBasicClient("http://localhost:8080/api/v1")
 
 	articles, _ := client.GetArticles(amount)
 
@@ -83,8 +83,7 @@ func getAndPrintArticle(copyFlag bool, amount int) {
 			clipboard.WriteAll(string(json))
 		}
 
-	fmt.Println(articles)				
-		// printArticles(articles)
+		printArticles(articles)
 	}
 										
 func printArticles(articles []models.Article) {

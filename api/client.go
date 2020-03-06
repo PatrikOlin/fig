@@ -7,47 +7,49 @@ import (
 	"io"			   
 	"bytes"			   
 	"strconv"
-	"fig/models"	
+	"fig/models"
+	"time"
+	"fmt"
 )			
 
 type Client struct {
 	BaseURL   *url.URL
 	UserAgent string
 
-	// httpClient *http.Client
+	httpClient *http.Client
 }
 			
 			
 func NewBasicClient(urlString string) *Client {
 	baseUrl, _ := url.Parse(urlString)
+	fmt.Println(baseUrl)
 	return &Client{
 		BaseURL: baseUrl,
 		UserAgent: "fig",
+
+		httpClient: &http.Client{
+			Timeout: 5 * time.Second,
+		},
 
 	}
 }
 
 func (c *Client) GetArticles(numOfArticles int) ([]models.Article, error) {
+
 	req, err := c.newRequest("GET", "/articles?amount=" + strconv.Itoa(numOfArticles), nil)
+	fmt.Println(numOfArticles)
 	if err != nil {
 		return nil, err
 	}
 
 	var articles []models.Article
-	bytes, err := c.do(req, &articles)
+	_, err = c.do(req, &articles)
 
-	var data models.Article
-	err = json.Unmarshal(bytes, &data)
-	if err != nil {
-		return nil, err
-	}
-	return &data, err
+
+	return articles, err
 }
 
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
-	rel := &url.URL{Path: path}
-	u := c.BaseURL.ResolveReference(rel)
-
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
@@ -57,7 +59,7 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 		}
 	}
 
-	req, err := http.NewRequest(method, u.String(), buf)
+	req, err := http.NewRequest(method, c.BaseURL.String() + path, buf)
 	if err != nil {
 		return nil, err
 	}
